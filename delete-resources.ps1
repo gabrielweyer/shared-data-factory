@@ -1,4 +1,5 @@
-#requires -Version 7.0
+#Requires -Version 7.0
+#Requires -Modules Az
 
 <#
 
@@ -22,8 +23,12 @@ The name of the shared Integration Runtime.
 .EXAMPLE
 .\delete-resources.ps1 -SharedResourceGroupName shared-data-factory-rg -SharedFactoryName shared-gw-adf -SharedIntegrationRuntimeName shared-integration-runtime -LinkedResourceGroupName linked-data-factory-rg
 
+Delete all the resources when the shared and linked Data Factories are located in different resource groups.
+
 .EXAMPLE
 .\delete-resources.ps1 -SharedResourceGroupName data-factory-rg -SharedFactoryName shared-gw-adf -SharedIntegrationRuntimeName shared-integration-runtime -LinkedResourceGroupName data-factory-rg
+
+Delete all the resources when the shared and linked Data Factories are located in the same resource group.
 
 .NOTES
 You need:
@@ -35,7 +40,7 @@ Before running this script you need to invoke `Connect-AzAccount` to sign-in and
 want to operate on.
 
 .LINK
-
+https://github.com/gabrielweyer/shared-data-factory
 
 #>
 

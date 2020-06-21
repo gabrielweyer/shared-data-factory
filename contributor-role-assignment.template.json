@@ -1,0 +1,49 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "sharedFactoryName": {
+            "type": "string",
+            "defaultValue": "shared-gw-adf",
+            "metadata": {
+                "description": "The name of the Data Factory that contains the shared Integration Runtime."
+            }
+        },
+        "sharedIntegrationRuntimeName": {
+            "type": "string",
+            "defaultValue": "shared-integration-runtime",
+            "metadata": {
+                "description": "Name of the shared Integration Runtime."
+            }
+        },
+        "linkedFactoryName": {
+            "type": "string",
+            "defaultValue": "linked-gw-adf",
+            "metadata": {
+                "description": "Name of the Data Factory that contains the linked Integration Runtime."
+            }
+        },
+        "sharedIntegrationRuntimeResourceId": {
+            "type": "string",
+            "metadata": {
+                "description": "Resource Id of the shared Integration Runtime."
+            }
+        }
+    },
+    "variables": {
+        "contributorRoleUniqueId": "b24988ac-6180-42a0-ab88-20f7382dd24c" // https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#all
+    },
+    "resources": [
+        {
+            "type": "Microsoft.DataFactory/factories/integrationRuntimes/providers/roleAssignments",
+            "apiVersion": "2018-09-01-preview",
+            "name": "[concat(parameters('sharedFactoryName'), '/', parameters('sharedIntegrationRuntimeName'), '/Microsoft.Authorization/', guid(variables('contributorRoleUniqueId'), 'Microsoft.DataFactory/factories/', parameters('linkedFactoryName')))]",
+            "properties": {
+                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', concat(variables('contributorRoleUniqueId')))]",
+                "principalId": "[reference(concat('Microsoft.DataFactory/factories/', parameters('linkedFactoryName')), '2018-06-01', 'Full').identity.principalId]",
+                "scope": "[parameters('sharedIntegrationRuntimeResourceId')]",
+                "principalType": "ServicePrincipal"
+            }
+        }
+    ]
+}

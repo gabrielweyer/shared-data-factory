@@ -18,26 +18,28 @@
         },
         "sharedFactoryResourceGroup": {
             "type": "string",
+            "defaultValue": "shared-data-factory-rg",
             "metadata": {
-                "description": "shared-gw-adf"
+                "description": "Name of the resource group containing the shared Data Factory."
             }
         },
         "sharedFactoryName": {
             "type": "string",
+            "defaultValue": "shared-gw-adf",
             "metadata": {
-                "description": "shared-gw-adf"
+                "description": "Name of the Data Factory that contains the shared Integration Runtime."
             }
         },
         "sharedIntegrationRuntimeName": {
             "type": "string",
+            "defaultValue": "shared-integration-runtime",
             "metadata": {
-                "description": "shared-gw-adf"
+                "description": "Name of the shared Integration Runtime."
             }
         }
     },
     "variables": {
         "linkedIntegrationRuntimeName": "linked-integration-runtime",
-        "contributorRoleUniqueId": "b24988ac-6180-42a0-ab88-20f7382dd24c", // https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#all
         "sharedIntegrationRuntimeResourceId": "[resourceId(subscription().subscriptionId, parameters('sharedFactoryResourceGroup'), 'Microsoft.DataFactory/factories/integrationRuntimes', parameters('sharedFactoryName'), parameters('sharedIntegrationRuntimeName'))]"
     },
     "resources": [
@@ -61,22 +63,23 @@
             "resourceGroup": "[parameters('sharedFactoryResourceGroup')]",
             "properties": {
                 "mode": "Incremental",
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
-                    "resources": [
-                        {
-                            "type": "Microsoft.DataFactory/factories/integrationRuntimes/providers/roleAssignments",
-                            "apiVersion": "2018-09-01-preview",
-                            "name": "[concat(parameters('sharedFactoryName'), '/', parameters('sharedIntegrationRuntimeName'), '/Microsoft.Authorization/', guid(variables('contributorRoleUniqueId'), 'Microsoft.DataFactory/factories/', parameters('linkedFactoryName')))]",
-                            "properties": {
-                                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', concat(variables('contributorRoleUniqueId')))]",
-                                "principalId": "[reference(concat('Microsoft.DataFactory/factories/', parameters('linkedFactoryName')), '2018-06-01', 'Full').identity.principalId]",
-                                "scope": "[variables('sharedIntegrationRuntimeResourceId')]",
-                                "principalType": "ServicePrincipal"
-                            }
-                        }
-                    ]
+                "parameters": {
+                    "sharedFactoryName": {
+                        "value": "[parameters('sharedFactoryName')]"
+                    },
+                    "sharedIntegrationRuntimeName": {
+                        "value": "[parameters('sharedIntegrationRuntimeName')]"
+                    },
+                    "linkedFactoryName": {
+                        "value": "[parameters('linkedFactoryName')]"
+                    },
+                    "sharedIntegrationRuntimeResourceId": {
+                        "value": "[variables('sharedIntegrationRuntimeResourceId')]"
+                    }
+                },
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/gabrielweyer/shared-data-factory/master/contributor-role-assignment.template.json",
+                    "contentVersion": "1.0.0.0"
                 }
             }
         },

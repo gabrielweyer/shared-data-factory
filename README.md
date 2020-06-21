@@ -12,7 +12,7 @@ The first time I run the template (to create the resources), the deployment **so
 Status Message: Access denied. Unable to access shared integration runtime 'shared-integration-runtime'. Please check whether this resource has been granted permission by the shared integration runtime (Code:UnauthorizedIntegrationRuntimeAccess)
 ```
 
-The second time I run the template, the deployment works. This has been consistent over a few deployment attempts. **In my template I've marked the linked Integration Runtime as depending on the deployment that grants the Contributor role but it feels the Resource Manager is not waiting for the nested template to complete**.
+The second time I run the template, the deployment works. This has been consistent over a few deployment attempts. **In my template I've marked the linked Integration Runtime as depending on the deployment that grants the Contributor role but it feels the Resource Manager is not waiting for the nested template to complete**. I'm also able to reproduce this error sometimes when using a linked template.
 
 I'm deploying the template at a resource group scope.
 
@@ -35,8 +35,12 @@ Once the installation is done, the Integration Runtime will prompt you for the A
 Replace `gw` (my initials) by a string that will make the Data Factory name globally unique.
 
 ```powershell
-.\deploy.ps1 -SharedFactoryName shared-gw-adf -LinkedFactoryName linked-gw-adf
+.\deploy.ps1 -SharedResourceGroupName shared-data-factory-rg -SharedFactoryName shared-gw-adf -SharedIntegrationRuntimeName shared-integration-runtime -LinkedResourceGroupName linked-data-factory-rg -LinkedFactoryName linked-gw-adf
 ```
+
+By default the `deploy.ps1` script uses a nested template to grant the Contributor role. You can use a linked template instead by using the `-UseLinkedTemplate` switch.
+
+You can delete the resources by calling [delete-resources.ps1](#delete-resources).
 
 ## Appendix
 
